@@ -1,0 +1,197 @@
+@host = http://localhost:4000/api
+
+#################################################################
+## 🧩 PARTE 0 — CONFIGURACIÓN INICIAL
+#################################################################
+
+### 0.1 — REGISTRAR USUARIO 1 (PROPIETARIO)
+POST {{host}}/usuarios/signup
+Content-Type: application/json
+
+{
+  "nombre": "Mariano López",
+  "email": "mariano@example.com",
+  "password": "Password123"
+}
+
+### 0.2 — REGISTRAR USUARIO 2 (MIEMBRO)
+POST {{host}}/usuarios/signup
+Content-Type: application/json
+
+{
+  "nombre": "Ramiro Díaz",
+  "email": "ramiro@example.com",
+  "password": "Password123"
+}
+### 0.2 — REGISTRAR USUARIO 2 (MIEMBRO)
+POST {{host}}/usuarios/signup
+Content-Type: application/json
+
+{
+  "nombre": "juan",
+  "email": "Juan@example.com",
+  "password": "Password123"
+}
+
+#################################################################
+## 🧩 PARTE 1 — LOGIN Y TOKEN JWT
+#################################################################
+
+# 🔑 Guardar manualmente el token obtenido del login (reemplazá si cambia)
+@token_mariano = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJtYXJpYW5vQGV4YW1wbGUuY29tIiwiaWF0IjoxNzYyOTEzMDYzLCJleHAiOjE3NjI5OTk0NjN9.gteGHnWxDEsFBI-qelPQHAP297wD__ZgaOarH89BwiA
+
+### 1.1 — LOGIN USUARIO 1 (PROPIETARIO)
+POST {{host}}/usuarios/login
+Content-Type: application/json
+
+{
+  "email": "mariano@example.com",
+  "password": "Password123"
+}
+
+
+### 1.2 — LOGIN USUARIO 2 (MIEMBRO)
+POST {{host}}/usuarios/login
+Content-Type: application/json
+
+{
+  "email": "ramiro@example.com",
+  "password": "Password123"
+}
+
+
+
+
+
+#################################################################
+## 🧩 PARTE 2 — EQUIPOS Y MEMBRESÍAS
+#################################################################
+
+### 2.1 — CREAR EQUIPO (Propietario: Mariano)
+POST {{host}}/equipos
+Content-Type: application/json
+Authorization: Bearer {{token_mariano}}
+
+{
+  "nombre": "Equipo Desarrollo IT 2"
+}
+
+
+
+### 2.2 — LISTAR EQUIPOS
+GET {{host}}/equipos
+Authorization: Bearer {{token_mariano}}
+
+### 2.3 — AGREGAR MIEMBRO (Ramiro)
+POST {{host}}/equipos/1/members
+Content-Type: application/json
+Authorization: Bearer {{token_mariano}}
+
+{
+  "email": "ramiro@example.com",
+  "rol": "Miembro"
+}
+
+### 2.4 — CAMBIAR ROL DE MIEMBRO
+PATCH {{host}}/equipos/1/role
+Content-Type: application/json
+Authorization: Bearer {{token_mariano}}
+
+{
+  "email": "ramiro@example.com",
+  "nuevoRol": "Propietario"
+}
+
+#################################################################
+## 🧩 PARTE 3 — TAREAS
+#################################################################
+
+### 3.1 — CREAR TAREA EN EQUIPO
+POST {{host}}/tareas
+Content-Type: application/json
+Authorization: Bearer {{token_mariano}}
+
+{
+  "titulo": "Diseñar API REST",
+  "descripcion": "Definir endpoints y controladores",
+  "prioridad": "Alta",
+  "equipoId": 1
+}
+
+### 3.2 — CAMBIAR ESTADO DE TAREA
+PATCH {{host}}/tareas/1/estado
+Content-Type: application/json
+Authorization: Bearer {{token_mariano}}
+
+{
+  "estado": "CANCELADA"
+}
+
+### 3.3 — LISTAR TAREAS DEL EQUIPO
+GET {{host}}/tareas?equipoId=1
+Authorization: Bearer {{token_mariano}}
+
+#################################################################
+## 🧩 PARTE 4 — COMENTARIOS Y ACTIVIDADES
+#################################################################
+
+### 4.1 — AGREGAR COMENTARIO A UNA TAREA
+POST {{host}}/tareas/1/comentarios
+Content-Type: application/json
+Authorization: Bearer {{token_mariano}}
+
+{
+  "contenido": "Recordar definir el esquema de autenticación antes del deploy."
+}
+
+### 4.2 — CONSULTAR HISTORIAL DE ACTIVIDAD DE UNA TAREA
+GET {{host}}/tareas/1/actividad
+Authorization: Bearer {{token_mariano}}
+
+#################################################################
+## 🧩 PARTE 5 — NOTIFICACIONES
+#################################################################
+
+### 5.1 — LISTAR NOTIFICACIONES DEL USUARIO
+GET {{host}}/notificaciones
+Authorization: Bearer {{token_mariano}}
+
+### 5.2 — MARCAR NOTIFICACIONES COMO LEÍDAS
+PATCH {{host}}/notificaciones/read
+Content-Type: application/json
+Authorization: Bearer {{token_mariano}}
+
+{
+  "ids": [1, 2]
+}
+
+#################################################################
+## 🧩 PARTE 6 — VALIDACIONES RÁPIDAS
+#################################################################
+
+### 6.1 — CREAR EQUIPO SIN TOKEN (Debe fallar con 401)
+POST {{host}}/equipos
+Content-Type: application/json
+
+{
+  "nombre": "Equipo No Autenticado"
+}
+
+### 6.2 — CREAR EQUIPO DUPLICADO (Debe fallar con 400)
+POST {{host}}/equipos
+Content-Type: application/json
+Authorization: Bearer {{token_mariano}}
+
+{
+  "nombre": "Equipo Desarrollo IT"
+}
+
+### 6.3 — AGREGAR USUARIO INEXISTENTE (Debe fallar con 404)
+POST {{host}}/equipos/1/members
+Content-Type: application/json
+Authorization: Bearer {{token_mariano}}
+
+{
+  "email": "noexiste@example.com",
+  "rol": "Miembro"
+}
