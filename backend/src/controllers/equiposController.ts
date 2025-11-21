@@ -170,4 +170,6 @@ export class EquiposController {
   }
 }
 
+
+
 export const equiposController = new EquiposController();

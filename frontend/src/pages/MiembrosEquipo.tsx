@@ -1,88 +1,135 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 
-interface Miembro {
-  id: number;
-  nombre: string;
-}
+import {
+  getMiembrosEquipo,
+  agregarMiembroEquipo,
+  eliminarMiembroEquipo,
+  getEquipos
+} from "../api/equiposApi";
 
 export default function MiembrosEquipo() {
   const { id } = useParams();
   const { token } = useAuth();
 
-  const [miembros, setMiembros] = useState<Miembro[]>([]);
-  const [nombre, setNombre] = useState("");
+  const [equipoNombre, setEquipoNombre] = useState("");
+  const [miembros, setMiembros] = useState<any[]>([]);
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const cargarMiembros = async () => {
+  const cargarDatos = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/equipos/${id}/miembros`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      if (!token) return;
 
-      if (!res.ok) throw new Error("Error al cargar miembros");
+      // Obtener nombre
+      const equipos = await getEquipos(token);
+      const equipo = equipos.find((e) => e.id === Number(id));
+      setEquipoNombre(equipo?.nombre ?? "");
 
-      const data = await res.json();
-      setMiembros(data);
+      // Obtener miembros
+      const lista = await getMiembrosEquipo(Number(id), token);
+
+      // Normalizar
+      const normalizados = lista.map((m: any) => ({
+        ...m,
+        usuario: m.usuario ?? {
+          nombre: "Usuario desconocido",
+          email: "sin-email"
+        }
+      }));
+
+      setMiembros(normalizados);
     } catch (err) {
       console.error(err);
-      alert("No se pudieron cargar los miembros.");
     }
+    setLoading(false);
   };
 
-  const agregarMiembro = async (e: React.FormEvent) => {
+  useEffect(() => {
+    cargarDatos();
+  }, []);
+
+  const handleAgregar = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nombre.trim()) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/api/equipos/${id}/miembros`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ nombre })
-      });
+      const nuevo = await agregarMiembroEquipo(
+        Number(id),
+        email,
+        "Miembro",
+        token!
+      );
 
-      if (!res.ok) throw new Error("No se pudo agregar");
+      const normalizado = {
+        ...nuevo,
+        usuario: nuevo.usuario ?? {
+          nombre: "Usuario desconocido",
+          email
+        }
+      };
 
-      setNombre("");
-      await cargarMiembros();
-    } catch (err) {
-      console.error(err);
+      setMiembros([...miembros, normalizado]);
+      setEmail("");
+    } catch {
       alert("Error al agregar miembro");
     }
   };
 
-  useEffect(() => {
-    if (id) cargarMiembros();
-  }, [id]);
+  const handleEliminar = async (membresiaId: number) => {
+    if (!confirm("¿Eliminar miembro?")) return;
+
+    try {
+      await eliminarMiembroEquipo(Number(id), membresiaId, token!);
+      setMiembros(miembros.filter((m) => m.id !== membresiaId));
+    } catch {
+      alert("Error al eliminar miembro");
+    }
+  };
+
+  if (loading) return <p>Cargando...</p>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Miembros del Equipo {id}</h1>
+      <h1 className="text-3xl font-bold mb-4">
+        Miembros de {equipoNombre}
+      </h1>
 
-      {/* Agregar miembro */}
-      <form onSubmit={agregarMiembro} className="flex gap-3 mb-6">
+      {/* AGREGAR */}
+      <form onSubmit={handleAgregar} className="mb-6 flex gap-3">
         <input
           className="border p-2 rounded"
-          placeholder="Nombre del miembro"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
+          placeholder="Email del usuario"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
-        <button className="bg-blue-600 text-white px-3 py-1 rounded">
+        <button className="bg-blue-600 text-white px-4 py-1 rounded">
           Agregar
         </button>
       </form>
 
-      {/* Listado */}
-      <ul className="space-y-2">
+      {/* LISTA */}
+      <div className="space-y-3">
         {miembros.map((m) => (
-          <li key={m.id} className="border p-3 rounded">
-            {m.nombre}
-          </li>
+          <div
+            key={m.id}
+            className="border p-3 rounded flex justify-between items-center"
+          >
+            <div>
+              <p className="font-semibold">{m.usuario.nombre}</p>
+              <p className="text-gray-600 text-sm">{m.usuario.email}</p>
+              <p className="italic text-sm">{m.rol}</p>
+            </div>
+
+            <button
+              className="bg-red-600 text-white px-3 py-1 rounded"
+              onClick={() => handleEliminar(m.id)}
+            >
+              Quitar
+            </button>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

@@ -6,6 +6,8 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import { useAuth } from "../context/AuthContext";
 import { type ReactNode } from "react";
 import MiembrosEquipo from "../pages/MiembrosEquipo";
+import EquipoDetalle from "../pages/EquipoDetalle";
+import Tareas from "../pages/Tareas";
 
 
 
@@ -33,6 +35,9 @@ export default function AppRouter() {
         >
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="equipos" element={<Equipos />} />
+          <Route path="equipos/:id" element={<EquipoDetalle />} />
+          <Route path="tareas" element={<Tareas />} />
+
         </Route>
 
         <Route path="equipos/:id/miembros" element={<MiembrosEquipo />} />

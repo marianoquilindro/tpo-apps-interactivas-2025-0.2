@@ -6,6 +6,16 @@ import { CreateTaskDto } from "../dtos/create-task.dto";
 import { UpdateTaskStatusDto } from "../dtos/update-task-status.dto";
 
 export class TareasController {
+
+  // Necesario para poder usar this.handleServiceError sin que se rompa
+  constructor() {
+    this.crearTarea = this.crearTarea.bind(this);
+    this.obtenerTarea = this.obtenerTarea.bind(this);
+    this.actualizarEstado = this.actualizarEstado.bind(this);
+    this.eliminarTarea = this.eliminarTarea.bind(this);
+    this.listarTareas = this.listarTareas.bind(this);
+  }
+
   private handleServiceError(res: Response, error: unknown) {
     const customError = error as { status?: number; message?: string };
     const status = customError.status || 500;
@@ -42,6 +52,12 @@ export class TareasController {
 
   /** PATCH /tareas/:id/estado - Cambiar el estado de la tarea **/
   async actualizarEstado(req: Request, res: Response, next: NextFunction) {
+    console.log("PATCH /api/tareas/:id/estado called", { 
+      params: req.params, 
+      body: req.body, 
+      user: (req as any).user?.id 
+    });
+
     try {
       const tareaId = parseInt(req.params.id);
       const usuarioId = (req as any).user.id;
@@ -57,6 +73,7 @@ export class TareasController {
       return this.handleServiceError(res, error);
     }
   }
+
   /** DELETE /tareas/:id - Eliminar una tarea **/
   async eliminarTarea(req: Request, res: Response, next: NextFunction) {
     try {

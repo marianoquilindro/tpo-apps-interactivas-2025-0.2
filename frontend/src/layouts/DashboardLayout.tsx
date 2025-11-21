@@ -16,7 +16,8 @@ export default function DashboardLayout() {
     <div className="flex min-h-screen bg-gray-100">
 
       {/* SIDEBAR */}
-      <aside className="w-64 bg-blue-700 text-white p-6 flex flex-col shadow-xl">
+      <aside className="w-64 bg-blue-700 text-white p-6 flex flex-col shadow-xl h-screen fixed left-0 top-0 overflow-y-auto">
+
 
         <h2 className="text-2xl font-bold mb-8">Mi Panel</h2>
 
@@ -64,7 +65,7 @@ export default function DashboardLayout() {
       </aside>
 
       {/* CONTENIDO PRINCIPAL */}
-      <main className="flex-1 p-10">
+      <main className="flex-1 p-10 ml-64">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">
           Hola, {user?.nombre || "usuario"} 👋
         </h1>

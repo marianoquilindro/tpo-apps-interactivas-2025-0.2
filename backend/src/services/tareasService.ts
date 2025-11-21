@@ -120,49 +120,62 @@ class TareasService {
   // -------------------------------------------------------------------
 
   async cambiarEstado(
-    tareaId: number,
-    nuevoEstado: string,
-    usuarioId: number
-  ): Promise<Tarea> {
-    const tarea = await this.obtenerTarea(tareaId);
+  tareaId: number,
+  nuevoEstado: string,
+  usuarioId: number
+): Promise<Tarea> {
+  console.log("[service] cambiarEstado start", { tareaId, nuevoEstado, usuarioId });
+  const tarea = await this.obtenerTarea(tareaId);
+  console.log("[service] tarea encontrada antes cambio:", { id: tarea.id, estado: tarea.estado });
 
-    // 1. Autorización: Debe ser Miembro del equipo
-    await equiposService.verificarPermiso(
-      usuarioId,
-      tarea.equipoId!,
-      "Miembro"
-    );
+  // 1. Autorización: Debe ser Miembro del equipo
+  await equiposService.verificarPermiso(
+    usuarioId,
+    tarea.equipoId!,
+    "Miembro"
+  );
 
-    const estadoAnterior = tarea.estado;
+  const estadoAnterior = tarea.estado;
 
-    // 2. Regla de Negocio: Validar Transición
-    if (estadoAnterior === "FINALIZADA" || estadoAnterior === "CANCELADA") {
-      throw {
-        status: 400,
-        message: `No se puede cambiar el estado de una tarea ${estadoAnterior}.`,
-      };
-    }
-
-    // 3. Registrar Actividad (Historial)
-    await actividadRepo.save({
-      tareaId: tarea.id,
-      usuarioId: usuarioId,
-      tipo: "CAMBIO_ESTADO",
-      contenido: `Estado cambiado de "${estadoAnterior}" a "${nuevoEstado}".`,
-    });
-
-    // INTEGRACIÓN: Notificar al creador de la tarea (si no es el mismo que hizo el cambio)
-    if (tarea.creadoPorId !== usuarioId) {
-      await notificacionesService.crearNotificacion(
-        tarea.creadoPorId,
-        "CAMBIO_ESTADO",
-        `El estado de tu tarea "${tarea.titulo}" cambió a ${nuevoEstado}.`,
-        tarea.id
-      );
-    }
-    return tareaRepo.save(tarea);
+  // 2. Regla de Negocio: Validar Transición
+  if (estadoAnterior === "FINALIZADA" || estadoAnterior === "CANCELADA") {
+    throw {
+      status: 400,
+      message: `No se puede cambiar el estado de una tarea ${estadoAnterior}.`,
+    };
   }
 
+  // ❌ Prohibir EN_CURSO → PENDIENTE
+  if (estadoAnterior === "EN_CURSO" && nuevoEstado === "PENDIENTE") {
+    throw {
+      status: 400,
+      message: "No se puede retroceder una tarea de EN_CURSO a PENDIENTE.",
+    };
+  }
+
+  tarea.estado = nuevoEstado;
+  console.log("[service] nuevo estado asignado:", tarea.estado);
+
+  // 3. Registrar Actividad (Historial)
+  await actividadRepo.save({
+    tareaId: tarea.id,
+    usuarioId: usuarioId,
+    tipo: "CAMBIO_ESTADO",
+    contenido: `Estado cambiado de "${estadoAnterior}" a "${nuevoEstado}".`,
+  });
+
+  // INTEGRACIÓN: Notificar al creador de la tarea
+  if (tarea.creadoPorId !== usuarioId) {
+    await notificacionesService.crearNotificacion(
+      tarea.creadoPorId,
+      "CAMBIO_ESTADO",
+      `El estado de tu tarea "${tarea.titulo}" cambió a ${nuevoEstado}.`,
+      tarea.id
+    );
+  }
+
+  return tareaRepo.save(tarea);
+}
   // -------------------------------------------------------------------
   // --- 4. ELIMINAR (D) ---
   // -------------------------------------------------------------------
@@ -223,7 +236,7 @@ class TareasService {
     });
   }
 
-  
+
 }
 
 export const tareasService = new TareasService();

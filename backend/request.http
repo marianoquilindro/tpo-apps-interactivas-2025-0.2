@@ -38,8 +38,7 @@ Content-Type: application/json
 #################################################################
 
 # 🔑 Guardar manualmente el token obtenido del login (reemplazá si cambia)
-@token_mariano = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJtYXJpYW5vQGV4YW1wbGUuY29tIiwiaWF0IjoxNzYyOTEzMDYzLCJleHAiOjE3NjI5OTk0NjN9.gteGHnWxDEsFBI-qelPQHAP297wD__ZgaOarH89BwiA
-
+@token_mariano = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJtYXJpYW5vQGV4YW1wbGUuY29tIiwiaWF0IjoxNzYzNjc2OTkwLCJleHAiOjE3NjM3NjMzOTB9.sDJBq0DK0hSBNe4CNCkZpqcJgOJpRawmkEI5wikeRaQ
 ### 1.1 — LOGIN USUARIO 1 (PROPIETARIO)
 POST {{host}}/usuarios/login
 Content-Type: application/json

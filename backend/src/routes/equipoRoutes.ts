@@ -24,4 +24,5 @@ router.get('/', equiposController.obtenerEquipos.bind(equiposController));
 
 router.delete('/:id', equiposController.eliminarEquipo.bind(equiposController));
 
+
 export default router;
