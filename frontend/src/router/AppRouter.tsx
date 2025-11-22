@@ -8,6 +8,8 @@ import { type ReactNode } from "react";
 import MiembrosEquipo from "../pages/MiembrosEquipo";
 import EquipoDetalle from "../pages/EquipoDetalle";
 import Tareas from "../pages/Tareas";
+import TareaDetalle from "../pages/TareaDetalle";
+
 
 
 
@@ -37,6 +39,7 @@ export default function AppRouter() {
           <Route path="equipos" element={<Equipos />} />
           <Route path="equipos/:id" element={<EquipoDetalle />} />
           <Route path="tareas" element={<Tareas />} />
+          <Route path="tareas/:id" element={<TareaDetalle />} />
 
         </Route>
 

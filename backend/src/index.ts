@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import express from "express";
-import cors from "cors"; 
+import cors from "cors";
 import { AppDataSource } from "./data-source";
 
 // Rutas
@@ -18,16 +18,22 @@ const PORT = 4000;
 app.use(express.json());
 app.use(cors());
 
-// Rutas principales
+// RUTAS PRINCIPALES
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/equipos", equipoRoutes);
+
+// 👉 PRIMERO /api/tareas
 app.use("/api/tareas", tareasRoutes);
+
+// 👉 LUEGO COMENTARIOS, DEBAJO DE /tareas
+app.use("/api/tareas", comentariosRoutes);
+
+// ❗ actividades también depende de tareas
+app.use("/api/tareas", actividadesRoutes);
+
+// OTRAS RUTAS SECUNDARIAS
 app.use("/api/etiquetas", etiquetaRoutes);
 app.use("/api/notificaciones", notificacionesRoutes);
-
-// Subrutas bajo /api/tareas
-app.use("/api/tareas", comentariosRoutes);
-app.use("/api/tareas", actividadesRoutes);
 
 AppDataSource.initialize()
   .then(() => {

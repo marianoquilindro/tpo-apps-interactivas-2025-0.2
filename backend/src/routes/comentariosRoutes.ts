@@ -17,6 +17,7 @@ router.post('/:tareaId/comentarios', comentariosController.crearComentario);
 router.get('/:tareaId/comentarios', comentariosController.listarComentarios);
 
 // DELETE /api/comentarios/:id
-router.delete('/comentarios/:id', comentariosController.eliminarComentario);
+router.delete('/:tareaId/comentarios/:id', comentariosController.eliminarComentario);
+
 
 export default router;

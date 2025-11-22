@@ -18,7 +18,6 @@ export default function Tareas() {
   const [filtroEstado, setFiltroEstado] = useState("");
   const [filtroPrioridad, setFiltroPrioridad] = useState("");
 
-  // Crear tarea
   const [formCrear, setFormCrear] = useState({
     titulo: "",
     descripcion: "",
@@ -26,7 +25,6 @@ export default function Tareas() {
     equipoId: "",
   });
 
-  // Editar SOLO estado
   const [editId, setEditId] = useState<number | null>(null);
   const [editEstado, setEditEstado] = useState<string>("");
 
@@ -91,7 +89,8 @@ export default function Tareas() {
   });
 
   return (
-    <div className="p-4">
+    // 🔥 SOLO ESTA LÍNEA SE MODIFICÓ PARA ARREGLAR EL LAYOUT
+    <div className="p-6 max-w-5xl mx-auto">
 
       {/* --- FORM CREAR --- */}
       <div className="bg-white p-4 rounded shadow mb-6 w-full max-w-xl">
@@ -183,12 +182,10 @@ export default function Tareas() {
         </select>
       </div>
 
-      {/* --- SIN RESULTADOS --- */}
       {tareasFiltradas.length === 0 && (
         <p className="text-gray-600 italic">No hay tareas para mostrar.</p>
       )}
 
-      {/* --- LISTADO --- */}
       <div className="space-y-3">
         {tareasFiltradas.map((t) => (
           <div key={t.id} className="border p-3 rounded bg-gray-50 w-full max-w-3xl">
@@ -214,7 +211,6 @@ export default function Tareas() {
               {new Date(t.fechaCreacion ?? t.createdAt!).toLocaleString()}
             </p>
 
-            {/* BOTONES */}
             <div className="flex gap-2 mt-3">
               <button
                 className="bg-yellow-500 text-white px-3 py-1 rounded"
@@ -232,9 +228,15 @@ export default function Tareas() {
               >
                 Borrar
               </button>
+
+              <button
+                className="bg-blue-600 text-white px-3 py-1 rounded"
+                onClick={() => window.location.href = `/tareas/${t.id}`}
+              >
+                Ver detalle
+              </button>
             </div>
 
-            {/* MODAL EDITAR ESTADO */}
             {editId === t.id && (
               <div className="mt-3 bg-white border p-3 rounded shadow">
                 <h3 className="font-bold mb-2">Editar estado</h3>

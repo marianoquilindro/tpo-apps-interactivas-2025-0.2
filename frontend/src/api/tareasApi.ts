@@ -43,3 +43,12 @@ export async function borrarTarea(token: string, id: number) {
 
   if (!res.ok) throw new Error("Error al eliminar tarea");
 }
+
+export async function obtenerTarea(token: string, id: number) {
+  const res = await fetch(`${API_URL}/tareas/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) throw new Error("Error al obtener la tarea");
+  return res.json();
+}
