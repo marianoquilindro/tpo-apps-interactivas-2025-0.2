@@ -1,5 +1,10 @@
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, NavLink, Outlet, useLocation } from "react-router-dom";
+import { useNotificaciones } from "../hooks/useNotificaciones";
+import { useState } from "react";
+import BellNotificaciones  from "../components/BellNotificaciones";
+
+
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
@@ -28,8 +33,7 @@ export default function DashboardLayout() {
           <NavLink
             to="/dashboard"
             className={({ isActive }) =>
-              `py-2 px-3 rounded-lg transition text-left ${
-                isActive ? "bg-blue-900 font-semibold" : "hover:bg-blue-800"
+              `py-2 px-3 rounded-lg transition text-left ${isActive ? "bg-blue-900 font-semibold" : "hover:bg-blue-800"
               }`
             }
           >
@@ -39,8 +43,7 @@ export default function DashboardLayout() {
           <NavLink
             to="/equipos"
             className={({ isActive }) =>
-              `py-2 px-3 rounded-lg transition text-left ${
-                isActive ? "bg-blue-900 font-semibold" : "hover:bg-blue-800"
+              `py-2 px-3 rounded-lg transition text-left ${isActive ? "bg-blue-900 font-semibold" : "hover:bg-blue-800"
               }`
             }
           >
@@ -50,8 +53,7 @@ export default function DashboardLayout() {
           <NavLink
             to="/tareas"
             className={({ isActive }) =>
-              `py-2 px-3 rounded-lg transition text-left ${
-                isActive ? "bg-blue-900 font-semibold" : "hover:bg-blue-800"
+              `py-2 px-3 rounded-lg transition text-left ${isActive ? "bg-blue-900 font-semibold" : "hover:bg-blue-800"
               }`
             }
           >
@@ -76,6 +78,10 @@ export default function DashboardLayout() {
             Hola, {user?.nombre || "usuario"} 👋
           </h1>
         )}
+        <div className="relative flex justify-end mb-6">
+          <BellNotificaciones />
+        </div>
+
 
         <Outlet />
       </main>
